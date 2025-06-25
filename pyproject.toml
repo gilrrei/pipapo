@@ -15,7 +15,10 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.dynamic]
 version = { attr = "pipapo.__version__" }
-dependencies = { file = ["requirements.txt"] }
+dependencies = { file = ["requirements.in"] } # No versions fixed
+optional-dependencies = { safe = { file = [
+    "requirements.txt",
+] } } # Every package version is fixed
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

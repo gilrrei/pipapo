@@ -287,24 +287,6 @@ class ParticleContainer(NumpyContainer):
     def _update_data_type(self):
         """Needs to be overwritten."""
 
-    def get_pv_spheres(self, field_name=None):
-        """Get pyvista spheres.
-
-        Returns:
-            list: List of all the pyvista spheres
-        """
-        spheres = []
-        for i in range(len(self)):
-            sphere = pv.Sphere(
-                self.radius[i], self.position[i]
-            )  # pylint: disable=E1136
-            if field_name:
-                sphere["Data"] = (
-                    np.ones(len(sphere.points)) * getattr(self, field_name)[i]
-                )
-            spheres.append(sphere)
-        return spheres
-
     def plot(self, pv_plotter=None, show=True, field_name=None, **kwargs):
         """Plot spheres.
 
@@ -320,12 +302,19 @@ class ParticleContainer(NumpyContainer):
         if not pv_plotter:
             pv_plotter = pv.Plotter()
 
+        particles = pv.PolyData(self.position)
+        particles.point_data["diameter"] = 2 * self.radius
+
         if not "color" in kwargs and not field_name:
             kwargs["color"] = "green"
+        else:
+            particles.point_data[field_name] = self.__getitem__(field_name)
 
-        for sphere in self.get_pv_spheres(field_name):
-            pv_plotter.add_mesh(sphere, scalar_bar_args={"title": field_name}, **kwargs)
+        sphere = pv.Sphere(theta_resolution=10, phi_resolution=10)
 
+        particles_glyph = particles.glyph(scale="diameter", geom=sphere)
+
+        pv_plotter.add_mesh(particles_glyph)
         if show:
             pv_plotter.show()
 
