@@ -10,6 +10,10 @@
    ```bash
    pip install .
    ```
+   For a safe installation with fixed dependencies packages use:
+   ```bash
+   pip install .[safe]
+   ```
    Develop install:
    ```bash
    pip install -e .[dev]
